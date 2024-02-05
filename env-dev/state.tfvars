@@ -1,3 +1,3 @@
-bucket = "s3-practice-devops"
+bucket = "d77-terraform1"
 key    = "expense/dev/terraform.tfstate"
 region = "us-east-1"
