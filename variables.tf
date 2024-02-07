@@ -3,4 +3,4 @@ variable "env" {}
 variable "project_name"{}
 #variable "subnets_cidr" {}
 #variable "az" {}
-#variable "vpc" {}
+variable "vpc" {}
