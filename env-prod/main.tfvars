@@ -1,4 +1,5 @@
 env = "prod"
+project_name = "expense"
 
 vpc = {
   main = {
