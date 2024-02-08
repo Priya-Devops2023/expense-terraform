@@ -43,3 +43,44 @@ resource "aws_route" "default-vpc" {
   destination_cidr_block    = aws_vpc.main.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.main.id
 }
+
+## same ec2 instance
+data "aws_ami" "centos8" {
+  most_recent      = true
+  name_regex       = "Centos-8-DevOps-Practice"
+  owners           = ["973714476881"]
+}
+
+resource "aws_security_group" "test" {
+  name        = "test"
+  description = "Allow TLS inbound traffic and all outbound traffic"
+  vpc_id      = aws_vpc.main.id
+  ingress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "allow_tls"
+  }
+}
+resource "aws_instance" "test" {
+  ami                     = data.aws_ami.centos8.image_id
+  instance_type           = "t2.micro"
+  subnet_id               = aws_subnet.main[0].id
+  vpc_security_group_ids = [aws_security_group.test.id]
+
+  tags = {
+    Name = "test"
+  }
+}
