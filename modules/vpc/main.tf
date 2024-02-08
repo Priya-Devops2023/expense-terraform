@@ -5,3 +5,4 @@ resource "aws_vpc" "main" {
     Name = "${var.env}-${var.project_name}-vpc"
   }
 }
+
