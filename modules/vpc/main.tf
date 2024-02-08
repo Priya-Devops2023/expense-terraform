@@ -27,6 +27,6 @@ resource "aws_vpc_peering_connection" "main" {
   auto_accept = true
 
   tags = {
-    Name = "${var-env}-vpc-with-default-vpc"
+    Name = "${var.env}-vpc-with-default-vpc"
   }
 }
