@@ -38,7 +38,7 @@ resource "aws_route" "main" {
   vpc_peering_connection_id = aws_vpc_peering_connection.main.id
 }
 
-resource "aws_route" "main" {
+resource "aws_route" "default-vpc" {
   route_table_id            = data.aws_vpc.default.main_route_table_id
   destination_cidr_block    = aws_vpc.main.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.main.id
