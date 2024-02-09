@@ -7,18 +7,29 @@ resource "aws_vpc" "main" {
   }
 }
 
-# Creating a subnet
-resource "aws_subnet" "main" {
-  count      = length(var.subnets_cidr)
+
+# Creating a 4 subnet
+resource "aws_subnet" "public" {
+  count      = length(var.public_subnets_cidr)
   vpc_id     = aws_vpc.main.id
-  cidr_block = element(var.subnets_cidr,count.index)
+  cidr_block = element(var.public_subnets_cidr,count.index)
   availability_zone = element(var.az,count.index )
 
   tags = {
-    Name = "subnet-${count.index}"
+    Name = "public-subnet-${count.index+1}"
   }
 }
 
+resource "aws_subnet" "private" {
+  count      = length(var.private_subnets_cidr)
+  vpc_id     = aws_vpc.main.id
+  cidr_block = element(var.private_subnets_cidr,count.index)
+  availability_zone = element(var.az,count.index )
+
+  tags = {
+    Name = "private-subnet-${count.index+1}"
+  }
+}
 #creating a peering connection
 resource "aws_vpc_peering_connection" "main" {
 
@@ -51,6 +62,7 @@ data "aws_ami" "centos8" {
   owners           = ["973714476881"]
 }
 
+# Creating a security group
 resource "aws_security_group" "test" {
   name        = "test"
   description = "Allow TLS inbound traffic and all outbound traffic"
@@ -74,13 +86,10 @@ resource "aws_security_group" "test" {
     Name = "allow_tls"
   }
 }
-resource "aws_instance" "test" {
-  ami                     = data.aws_ami.centos8.image_id
-  instance_type           = "t2.micro"
-  subnet_id               = aws_subnet.main[0].id
-  vpc_security_group_ids = [aws_security_group.test.id]
 
-  tags = {
-    Name = "test"
-  }
+resource "aws_instance" "test"{
+  ami = data.aws_ami.centos8.image_id
+  instance_type = "t2.micro"
+  subnet_id = aws_subnet.private[0].id
+  vpc_security_group_ids = [aws_security_group.test.id]
 }
