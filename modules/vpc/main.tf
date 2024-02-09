@@ -6,6 +6,19 @@ resource "aws_vpc" "main" {
     Name = "${var.env}-${var.project_name}-vpc"
   }
 }
+
+#creating a peering connection
+resource "aws_vpc_peering_connection" "main" {
+
+  vpc_id      = aws_vpc.main.id
+  peer_vpc_id = data.aws_vpc.default.id
+  auto_accept = true
+
+  tags = {
+    Name = "${var.env}-vpc-with-default-vpc"
+  }
+}
+
 # creating an internet gateway
 resource "aws_internet_gateway" "main"{
   vpc_id = aws_vpc.main.id
@@ -17,9 +30,9 @@ resource "aws_internet_gateway" "main"{
 
 # Creating a 4 subnet
 resource "aws_subnet" "public" {
-  count      = length(var.public_subnets_cidr)
-  vpc_id     = aws_vpc.main.id
-  cidr_block = element(var.public_subnets_cidr,count.index)
+  count             = length(var.public_subnets_cidr)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = element(var.public_subnets_cidr,count.index)
   availability_zone = element(var.az,count.index )
 
   tags = {
@@ -29,37 +42,37 @@ resource "aws_subnet" "public" {
 
 #Creating a route table for internet
 resource "aws_route_table" "public" {
-  count = length(var.public_subnets_cidr)
+  count  = length(var.public_subnets_cidr)
   vpc_id = aws_vpc.main.id
+
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.main.id
   }
+ #creating the peering connection with the route and default
+  route {
+    cidr_block                = data.aws_vpc.default.cidr_block
+    vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+  }
+
   tags = {
-    Name ="public-rt-${count.index+1}"
+    Name        ="public-rt-${count.index+1}"
   }
 }
-
+resource "aws_route_table_association" "public" {
+  count          = length(var.public_subnets_cidr)
+  route_table_id = lookup(element(aws_route_table.public,count.index),"id",null )
+  subnet_id      = lookup(element(aws_subnet.public,count.index),"id",null )
+}
 
 resource "aws_subnet" "private" {
-  count      = length(var.private_subnets_cidr)
-  vpc_id     = aws_vpc.main.id
-  cidr_block = element(var.private_subnets_cidr,count.index)
+  count             = length(var.private_subnets_cidr)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = element(var.private_subnets_cidr,count.index)
   availability_zone = element(var.az,count.index )
 
   tags = {
     Name = "private-subnet-${count.index+1}"
-  }
-}
-#creating a peering connection
-resource "aws_vpc_peering_connection" "main" {
-
-  vpc_id      = aws_vpc.main.id
-  peer_vpc_id = data.aws_vpc.default.id
-  auto_accept = true
-
-  tags = {
-    Name = "${var.env}-vpc-with-default-vpc"
   }
 }
 
@@ -109,8 +122,8 @@ resource "aws_security_group" "test" {
 }
 
 resource "aws_instance" "test"{
-  ami = data.aws_ami.centos8.image_id
-  instance_type = "t2.micro"
-  subnet_id = aws_subnet.private[0].id
+  ami                    = data.aws_ami.centos8.image_id
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.private[0].id
   vpc_security_group_ids = [aws_security_group.test.id]
 }
