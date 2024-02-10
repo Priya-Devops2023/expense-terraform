@@ -82,6 +82,16 @@ resource "aws_eip" "main" {
   }
 }*/
 
+resource "aws_nat_gateway" "main" {
+  count         = length(var.public_subnets_cidr)
+  allocation_id = lookup(element(aws_eip.main, count.index), "id", null)
+  subnet_id     = lookup(element(aws_subnet.public, count.index), "id", null)
+
+  tags = {
+    Name = "ngw-${count.index + 1}"
+  }
+}
+
 #Creating two private subnet
 resource "aws_subnet" "private" {
   count             = length(var.private_subnets_cidr)
@@ -101,7 +111,7 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block = "0.0.0.0/0"
-   #nat_gateway_id = lookup(element(aws_nat_gateway.main,count.index ),"id",null )
+   nat_gateway_id = lookup(element(aws_nat_gateway.main,count.index ),"id",null )
   }
   #creating the peering connection with the route and default
   route {
