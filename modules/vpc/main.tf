@@ -84,9 +84,10 @@ resource "aws_eip" "main" {
 
 resource "aws_nat_gateway" "main" {
   count         = length(var.public_subnets_cidr)
-  allocation_id = lookup(element(aws_eip.main, count.index), "id", null)
-  subnet_id     = lookup(element(aws_subnet.public, count.index), "id", null)
-
+  #allocation_id = lookup(element(aws_eip.main, count.index), "id", null)
+  #subnet_id     = lookup(element(aws_subnet.public, count.index), "id", null)
+  allocation_id = aws_eip.main[count.index].id
+  subnet_id = aws_subnet.public[count.index].id
   tags = {
     Name = "ngw-${count.index + 1}"
   }
