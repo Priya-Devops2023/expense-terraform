@@ -59,6 +59,7 @@ resource "aws_route_table" "public" {
     Name        ="public-rt-${count.index+1}"
   }
 }
+#Creating a public route table association
 resource "aws_route_table_association" "public" {
   count          = length(var.public_subnets_cidr)
   route_table_id = lookup(element(aws_route_table.public,count.index),"id",null )
