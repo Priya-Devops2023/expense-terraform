@@ -83,21 +83,22 @@ resource "aws_nat_gateway" "main" {
   }
 }
 
-#Creating two private subnet
-resource "aws_subnet" "private" {
-  count             = length(var.private_subnets_cidr)
+
+#Creating two web subnet
+resource "aws_subnet" "web" {
+  count             = length(var.web_subnets_cidr)
   vpc_id            = aws_vpc.main.id
-  cidr_block        = element(var.private_subnets_cidr,count.index)
+  cidr_block        = element(var.web_subnets_cidr,count.index)
   availability_zone = element(var.az,count.index )
 
   tags = {
-    Name = "private-subnet-${count.index+1}"
+    Name = "web-subnet-${count.index+1}"
   }
 }
 
-#Creating a route table for internet for private
-resource "aws_route_table" "private" {
-  count  = length(var.private_subnets_cidr)
+#Creating a route table for internet for web
+resource "aws_route_table" "web" {
+  count  = length(var.web_subnets_cidr)
   vpc_id = aws_vpc.main.id
 
   route {
@@ -112,13 +113,91 @@ resource "aws_route_table" "private" {
   }
 
   tags = {
-    Name        ="private-rt-${count.index+1}"
+    Name        ="web-rt-${count.index+1}"
   }
 }
-resource "aws_route_table_association" "private" {
-  count          = length(var.private_subnets_cidr)
-  route_table_id = lookup(element(aws_route_table.private,count.index),"id",null )
-  subnet_id      = lookup(element(aws_subnet.private,count.index),"id",null )
+resource "aws_route_table_association" "web" {
+  count          = length(var.web_subnets_cidr)
+  route_table_id = lookup(element(aws_route_table.web,count.index),"id",null )
+  subnet_id      = lookup(element(aws_subnet.web,count.index),"id",null )
+}
+
+## Creating a subnet for app
+resource "aws_subnet" "app" {
+  count             = length(var.app_subnets_cidr)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = element(var.app_subnets_cidr,count.index)
+  availability_zone = element(var.az,count.index )
+
+  tags = {
+    Name = "app-subnet-${count.index+1}"
+  }
+}
+
+#Creating a route table for internet for app
+resource "aws_route_table" "app" {
+  count  = length(var.app_subnets_cidr)
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    # gateway_id = aws_internet_gateway.main.id
+    nat_gateway_id = lookup(element(aws_nat_gateway.main,count.index ),"id",null )
+  }
+  #creating the peering connection with the route and default
+  route {
+    cidr_block                = data.aws_vpc.default.cidr_block
+    vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+  }
+
+  tags = {
+    Name        ="app-rt-${count.index+1}"
+  }
+}
+#Creating a route table association for app
+resource "aws_route_table_association" "app" {
+  count          = length(var.app_subnets_cidr)
+  route_table_id = lookup(element(aws_route_table.app,count.index),"id",null )
+  subnet_id      = lookup(element(aws_subnet.app,count.index),"id",null )
+}
+
+## Creating a subnet for db
+resource "aws_subnet" "db" {
+  count             = length(var.db_subnets_cidr)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = element(var.db_subnets_cidr,count.index)
+  availability_zone = element(var.az,count.index )
+
+  tags = {
+    Name = "db-subnet-${count.index+1}"
+  }
+}
+
+#Creating a route table for internet for db
+resource "aws_route_table" "db" {
+  count  = length(var.db_subnets_cidr)
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    # gateway_id = aws_internet_gateway.main.id
+    nat_gateway_id = lookup(element(aws_nat_gateway.main,count.index ),"id",null )
+  }
+  #creating the peering connection with the route and default
+  route {
+    cidr_block                = data.aws_vpc.default.cidr_block
+    vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+  }
+
+  tags = {
+    Name        ="db-rt-${count.index+1}"
+  }
+}
+#Creating a route table association for db
+resource "aws_route_table_association" "db" {
+  count          = length(var.db_subnets_cidr)
+  route_table_id = lookup(element(aws_route_table.app,count.index),"id",null )
+  subnet_id      = lookup(element(aws_subnet.db,count.index),"id",null )
 }
 
 
@@ -165,11 +244,4 @@ resource "aws_security_group" "test" {
   tags = {
     Name = "allow_tls"
   }
-}
-
-resource "aws_instance" "test"{
-  ami                    = data.aws_ami.centos8.image_id
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.private[0].id
-  vpc_security_group_ids = [aws_security_group.test.id]
 }
