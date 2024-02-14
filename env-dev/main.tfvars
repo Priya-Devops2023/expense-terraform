@@ -19,7 +19,7 @@ rds = {
     db_name           = "expense"
     engine            = "mysql"
     engine_version    = "5.7"
-    instance_class    = "db.t2.micro"
+    instance_class    = "db.t3.micro"
     family            = "mysql5.7"
   }
 }
