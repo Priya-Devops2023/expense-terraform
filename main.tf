@@ -1,15 +1,14 @@
 module "vpc" {
-  source               = "./modules/vpc"
-  for_each             = var.vpc
-  vpc_cidr             = lookup(each.value,"vpc_cidr",null)
-  public_subnets_cidr  = lookup(each.value,"public_subnets_cidr",null)
-  web_subnets_cidr     = lookup(each.value,"web_subnets_cidr",null)
-  app_subnets_cidr     = lookup(each.value,"app_subnets_cidr",null)
-  db_subnets_cidr      = lookup(each.value,"db_subnets_cidr",null)
-  az                   = lookup(each.value,"az",null)
-  env                  = var.env
-  project_name         = var.project_name
-
+  source              = "./modules/vpc"
+  for_each            = var.vpc
+  vpc_cidr            = lookup(each.value, "vpc_cidr", null)
+  public_subnets_cidr = lookup(each.value, "public_subnets_cidr", null)
+  web_subnets_cidr    = lookup(each.value, "web_subnets_cidr", null)
+  app_subnets_cidr    = lookup(each.value, "app_subnets_cidr", null)
+  db_subnets_cidr     = lookup(each.value, "db_subnets_cidr", null)
+  az                  = lookup(each.value, "az", null)
+  env                 = var.env
+  project_name        = var.project_name
 }
 
 module "rds"{
@@ -28,7 +27,7 @@ module "rds"{
 # reference variables
   subnet_ids        = lookup(lookup(module.vpc,"main",null),"db_subnets_ids",null)
   vpc_id            = lookup(lookup(module.vpc,"main",null),"vpc_id",null)
-  sg_cidr_blocks    = lookup(lookup(var.vpc,"main",null),"app_subnets",null)
+  sg_cidr_blocks    = lookup(lookup(var.vpc,"main",null),"app_subnets_cidr",null)
 }
 
 module "backend" {
