@@ -2,7 +2,7 @@ env = "dev"
 project_name = "expense"
 # Specifying the KMS key
 kms_key_id = "arn:aws:kms:us-east-1:151681917074:key/a72861e7-d694-44a1-9fb5-46ce6f7efd50"
-bastion_cidrs = ["172.31.46.173/32"]
+bastion_cidrs = ["172.31.46.173/32"] # workstation private ip
 
 
 vpc = {
