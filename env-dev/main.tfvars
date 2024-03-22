@@ -24,10 +24,11 @@ rds = {
     engine_version    = "5.7"
     instance_class    = "db.t3.micro"
     family            = "mysql5.7"
-
+  }
+}
     backend_app_port = 8080
     backend_instance_capacity = 1
     backend_instance_type = "t3.micro"
-  }
-}
+
+
 
