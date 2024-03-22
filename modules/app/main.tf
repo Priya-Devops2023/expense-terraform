@@ -1,7 +1,7 @@
 resource "aws_security_group" "main"{
-  name = "${local.name}-rds-sg"
+  name        = "${local.name}-rds-sg"
   description = "${local.name}-rds-sg"
-  vpc_id = var.vpc_id
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port        = 22
@@ -32,27 +32,27 @@ resource "aws_security_group" "main"{
 }
 
 resource "aws_launch_template" "main"{
-  name_prefix   = "${local.name}-lt"
-  image_id      = data.aws_ami.centos8.image_id
-  instance_type = var.instant_type
+  name_prefix            = "${local.name}-lt"
+  image_id               = data.aws_ami.centos8.image_id
+  instance_type          = var.instant_type
   vpc_security_group_ids = [aws_security_group.main.id]
 }
 
 resource "aws_autoscaling_group" "main" {
-  name = "${local.name}-asg"
+  name                = "${local.name}-asg"
   desired_capacity    = var.instant_capacity
   max_size            = var.instant_capacity # This will fine tune after ASG
   min_size            = var.instant_capacity
  # vpc_zone_identifier = var.vpc_zone_identifier
 
   launch_template {
-    id = aws_launch_template.main.id
+    id      = aws_launch_template.main.id
     version = "$Latest"
   }
   tag {
-    key = "Name"
-    value = local.name
-        propagate_at_launch = true
+    key                 = "Name"
+    value               = local.name
+    propagate_at_launch = true
   }
 }
 
