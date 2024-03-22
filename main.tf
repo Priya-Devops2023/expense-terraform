@@ -63,16 +63,16 @@ module "rds" {
 }
 
 module "backend" {
-  source           = "./modules/app"
-  app_port         =  var.backend_app_port
-  bastion_cidrs    = var.bastion_cidrs
-  component        = "backend"
-  env              = var.env
-  instant_capacity = var.backend_instance_capacity
-  instant_type     = var.backend_instance_type
-  project_name     = var.project_name
-  sg_cidr_blocks   = var.web_subnets_cidr
-  vpc_id           = module.vpc.vpc_id
-  subnet_ids       = module.vpc.app_subnets_ids
+  source              = "./modules/app"
+  app_port            =  var.backend_app_port
+  bastion_cidrs       = var.bastion_cidrs
+  component           = "backend"
+  env                 = var.env
+  instant_capacity    = var.backend_instance_capacity
+  instant_type        = var.backend_instance_type
+  project_name        = var.project_name
+  sg_cidr_blocks      = var.app_subnets_cidr
+  vpc_id              = module.vpc.vpc_id
+  vpc_zone_identifier = module.vpc.app_subnets_ids
   }
 
