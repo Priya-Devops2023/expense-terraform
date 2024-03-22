@@ -40,10 +40,10 @@ resource "aws_launch_template" "main"{
 
 resource "aws_autoscaling_group" "main" {
   name = "${local.name}-asg"
-  desired_capacity   = var.instant_capacity
-  max_size           = var.instant_capacity # This will fine tune after ASG
-  min_size           = var.instant_capacity
-  vpc_zone_identifier = var.vpc_zone_identifier
+  desired_capacity    = var.instant_capacity
+  max_size            = var.instant_capacity # This will fine tune after ASG
+  min_size            = var.instant_capacity
+ # vpc_zone_identifier = var.vpc_zone_identifier
 
   launch_template {
     id = aws_launch_template.main.id
