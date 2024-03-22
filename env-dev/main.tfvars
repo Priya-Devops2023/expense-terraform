@@ -8,10 +8,10 @@ bastion_cidrs = ["172.31.46.173/32"] # workstation private ip
 vpc = {
   main = {
     vpc_cidr = "10.10.0.0/21"
-    public_subnets_cidr = ["10.10.0.0/25","10.10.0.128/25"]
-    web_subnets_cidr = ["10.10.1.0/25","10.10.1.128/25"]
-    app_subnets_cidr = ["10.10.2.0/25","10.10.2.128/25"]
-    db_subnets_cidr = ["10.10.3.0/25","10.10.3.128/25"]
+    public_subnets_cidr = ["10.10.0.0/25","10.10.0.127/25"]
+    web_subnets_cidr = ["10.10.1.0/25","10.10.1.127/25"]
+    app_subnets_cidr = ["10.10.2.0/25","10.10.2.127/25"]
+    db_subnets_cidr = ["10.10.3.0/25","10.10.3.127/25"]
     az = ["us-east-1a","us-east-1b"]
   }
 }
