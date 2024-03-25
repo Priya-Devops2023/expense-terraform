@@ -32,7 +32,7 @@ resource "aws_security_group" "main"{
 }
 
 resource "aws_launch_template" "main" {
-  name_prefix            = "lt"
+  name_prefix            = "launch"
   image_id               = data.aws_ami.centos8.image_id
   instance_type          = var.instant_type
   vpc_security_group_ids = [aws_security_group.main.id]
